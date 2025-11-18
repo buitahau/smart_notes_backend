@@ -1,0 +1,12 @@
+node_modules
+npm-debug.log
+npm-debug.log.*
+Dockerfile*
+docker-compose*
+.git
+.gitignore
+.github
+.vscode
+.env
+.env.*
+coverage

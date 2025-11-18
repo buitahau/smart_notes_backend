@@ -81,6 +81,25 @@ npm run dev
 
 The server will start on `http://localhost:3000`
 
+## Release Flow (Git + Docker)
+
+1. Branch from `develop` for your work and raise a PR back to `develop` when ready.
+2. Before the PR is merged, update the `version` field in `package.json` to the release number you want to publish (this is the single place where the version is input).
+3. Merge the PR into `develop`. The merge commit triggers the **Release on develop merge** workflow:
+   - Validates that the version has not already been tagged.
+   - Creates a git tag `v<version>` on the merge commit.
+   - Builds the Docker image defined in `Dockerfile` and pushes it to Docker Hub with tags `<version>` and `latest`.
+
+### Github Actions setup
+
+- Secrets required by the workflow:
+  - `DOCKERHUB_USERNAME`
+  - `DOCKERHUB_TOKEN` (Docker Hub access token/password for the above user)
+  - `DOCKERHUB_REPOSITORY` (e.g. `acmeco/smart-notes-backend`)
+- The workflow file lives at `.github/workflows/develop-release.yml`. It listens for pushes to `develop` (PR merges show up as pushes) and fails early if the requested version was already released.
+
+If the workflow fails because a tag already exists, bump the version in `package.json`, re-run the PR, and merge again. Successful runs automatically produce the tag and publish the Docker image, so no manual tagging or docker commands are required.
+
 ## API Endpoints
 
 ### Authentication

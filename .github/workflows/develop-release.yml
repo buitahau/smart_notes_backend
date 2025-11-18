@@ -1,0 +1,68 @@
+name: Release on develop merge
+
+on:
+  push:
+    branches:
+      - develop
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Tag and publish image
+    runs-on: ubuntu-latest
+    env:
+      REGISTRY_REPOSITORY: ${{ secrets.DOCKERHUB_REPOSITORY }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Read version from package.json
+        id: version
+        run: |
+          VERSION=$(jq -r '.version' package.json)
+          if [[ -z "$VERSION" || "$VERSION" == "null" ]]; then
+            echo "Version not found in package.json. Please provide a valid version before merging." >&2
+            exit 1
+          fi
+          echo "value=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Ensure tag is unique
+        run: |
+          git fetch --tags --force
+          if git rev-parse -q --verify "refs/tags/v${VERSION}" >/dev/null; then
+            echo "Tag v${VERSION} already exists. Bump the version before merging into develop." >&2
+            exit 1
+          fi
+        env:
+          VERSION: ${{ steps.version.outputs.value }}
+
+      - name: Create git tag
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag "v${VERSION}"
+          git push origin "v${VERSION}"
+        env:
+          VERSION: ${{ steps.version.outputs.value }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ env.REGISTRY_REPOSITORY }}:${{ steps.version.outputs.value }}
+            ${{ env.REGISTRY_REPOSITORY }}:latest
