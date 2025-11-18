@@ -1,0 +1,28 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js",
+    "format": "prettier --write \"src/**/*.{js,json}\"",
+    "format:check": "prettier --check \"src/**/*.{js,json}\""
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.19.5",
+    "@neondatabase/serverless": "^1.0.1",
+    "@supabase/supabase-js": "^2.38.0",
+    "dotenv": "^16.3.1",
+    "drizzle-orm": "^0.44.5",
+    "hono": "^4.9.9",
+    "inngest": "^3.45.1",
+    "node-fetch": "^3.3.2"
+  },
+  "devDependencies": {
+    "drizzle-kit": "^0.31.4",
+    "nodemon": "^3.0.1",
+    "prettier": "^3.6.2"
+  }
+}
