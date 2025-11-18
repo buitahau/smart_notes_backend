@@ -24,10 +24,15 @@ export const processWelcomeUser = async ({ id, email }) => {
   const existingUser = await userRepository.getByEmail(normalizedEmail);
 
   if (existingUser) {
-    const updated = await userRepository.update(existingUser.id, {
-      status: true,
-    });
-    const user = updated ?? existingUser;
+    let user = existingUser;
+
+    if (existingUser.status === false) {
+      const updated = await userRepository.update(existingUser.id, {
+        status: true,
+      });
+      user = updated ?? existingUser;
+    }
+
     await ensureDefaultSetting(user.id);
 
     return { success: true, user };

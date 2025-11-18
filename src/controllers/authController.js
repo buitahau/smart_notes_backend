@@ -1,4 +1,6 @@
+import { publishWelcomeUserEvent } from '../events/producer/welcomeUserProducer.js';
 import authService from '../services/authService.js';
+import crypto from 'crypto';
 
 class AuthController {
   async signInWithOtp(c) {
@@ -26,6 +28,12 @@ class AuthController {
           400
         );
       }
+
+      await publishWelcomeUserEvent({
+        id: crypto.randomUUID(),
+        email: email,
+        status: true,
+      });
 
       return c.json({
         success: true,
