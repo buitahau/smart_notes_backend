@@ -12,21 +12,7 @@ class UserService {
         return { success: true, user };
       }
 
-      if (!fallbackData.email) {
-        return {
-          success: false,
-          error: 'User not found',
-        };
-      }
-
-      user = await userRepository.create({
-        id: userId,
-        email: fallbackData.email,
-        firstName: normalizeString(fallbackData.firstName) ?? '',
-        lastName: normalizeString(fallbackData.lastName) ?? '',
-      });
-
-      return { success: true, user };
+      return { success: false, error: "Not found user" };
     } catch (error) {
       return { success: false, error: error.message };
     }
@@ -111,6 +97,7 @@ class UserService {
         lastName: normalizeString(payload.lastName) ?? '',
         status:
           typeof payload.status === 'boolean' ? payload.status : false,
+        iamId: null,
       });
 
       return { success: true, user };

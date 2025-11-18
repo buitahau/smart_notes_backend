@@ -6,7 +6,8 @@ class User {
     email,
     status = true,
     createdAt = new Date(),
-    updatedAt = new Date()
+    updatedAt = new Date(),
+    iamId = null
   ) {
     this.id = id;
     this.firstName = firstName;
@@ -15,6 +16,7 @@ class User {
     this.status = typeof status === 'boolean' ? status : Boolean(status);
     this.createdAt = createdAt;
     this.updatedAt = updatedAt;
+    this.iamId = iamId ?? null;
   }
 
   toJSON() {
@@ -24,6 +26,7 @@ class User {
       lastName: this.lastName,
       email: this.email,
       status: this.status,
+      iamId: this.iamId,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,
     };
