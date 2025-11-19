@@ -1,6 +1,7 @@
 import QueryAdapter from '../../queryAdapter.js';
 import { OPEN_AI_CONFIGURATION } from './config.js';
 import { convertDateToTimestamp } from '../../../utils/date.js';
+import { getDateExtractionPrompt } from '../../../prompts/dateExtractionPrompt.js';
 
 class OpenAIQueryAdapter extends QueryAdapter {
   constructor() {
@@ -18,34 +19,7 @@ class OpenAIQueryAdapter extends QueryAdapter {
     }
 
     const today = new Date().toISOString().split('T')[0];
-
-    const prompt = `
-        You are a date parser. Today is ${today}
-        Extract "specificDate", "startDate" and "endDate" from the user's query.
-
-        The JSON must follow this format:
-        {"specificDate": "<YYYY-MM-DD>", "startDate": "<YYYY-MM-DD>", "endDate": "<YYYY-MM-DD or null>"}
-
-        Return ONLY a JSON object, nothing else. No text, no explanation.
-        Rules:
-        - Always return valid JSON.
-        - "specificDate", "startDate" and "endDate" must be calculated based on today when this prompt is executed — NOT based on any examples below.
-        - If only "specificDate" is detected, set "startDate" and "endDate" to null.
-        - Dates must be in ISO format (YYYY-MM-DD).
-        - Correct common typos and misspellings in date-related words.
-        - Do not include extra text, only return the JSON object.
-
-        Examples (structure only — dates will depend on ${today}):
-        User: "my task today"
-        Output: {"specificDate": "<today>", "startDate": null, "endDate": null}
-
-        User: "give me tasks on weekend"
-        Output: {"specificDate": null, "startDate": "<Saturday>", "endDate": "<Sunday>"}
-
-        Now parse the following query:
-
-        "${query}"
-        `;
+    const prompt = getDateExtractionPrompt(today, query);
 
     try {
       const result = await this.makeModelResponse(this.textModel, prompt);
@@ -70,30 +44,30 @@ class OpenAIQueryAdapter extends QueryAdapter {
 
   async createEmbedding(input) {
     const response = await fetch(`${this.baseUrl}/embeddings`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${this.apiKey}`,
-        },
-        body: JSON.stringify({
-            input,
-            model: this.embeddingModel,
-        }),
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${this.apiKey}`,
+      },
+      body: JSON.stringify({
+        input,
+        model: this.embeddingModel,
+      }),
     });
 
     const data = await response.json();
 
     if (!response.ok) {
-        throw new Error(
+      throw new Error(
         data?.error?.message ||
-            `OpenAI embeddings request failed: ${response.status}`
-        );
+        `OpenAI embeddings request failed: ${response.status}`
+      );
     }
 
     const embedding = data?.data?.[0]?.embedding;
 
     if (!Array.isArray(embedding)) {
-        throw new Error('OpenAI embeddings response is missing embedding data');
+      throw new Error('OpenAI embeddings response is missing embedding data');
     }
 
     return embedding;

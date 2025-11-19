@@ -2,6 +2,8 @@ import QueryAdapter from '../../queryAdapter.js';
 import { cleanJson } from '../../../utils/json.js';
 import { convertDateToTimestamp } from '../../../utils/date.js';
 import { OPEN_ROUTER_CONFIGURATION } from './config.js';
+import { getQueryClassificationPrompt } from '../../../prompts/queryClassificationPrompt.js';
+import { getDateExtractionPrompt } from '../../../prompts/dateExtractionPrompt.js';
 
 /**
  * Enhanced OpenRouter Query Adapter with error handling and logging
@@ -161,17 +163,7 @@ class OpenRouterQueryAdapter extends QueryAdapter {
       throw new Error('Query must be a non-empty string');
     }
 
-    const prompt = `
-    Given a natural language query, classify the user query into one of :
-    - "task_list": user wants tasks for specific time like today/tomorrow/next week ... (date range).
-    - "date_lookup": user wants to know when a specific task/note happens.
-
-    Return ONLY a JSON object in this format: {"intent" : "task_list | date_lookup"}.
-
-    Only reply with valid JSON.
-
-    Query: ${query}
-    `;
+    const prompt = getQueryClassificationPrompt(query);
 
     try {
       const result = await this.generateResponse(prompt);
@@ -213,33 +205,7 @@ class OpenRouterQueryAdapter extends QueryAdapter {
 
     const today = new Date().toISOString().split('T')[0];
 
-    const prompt = `
-    You are a date parser. Today is ${today}
-    Extract "fromDate" and "endDate" from the user's query.
-
-    The JSON must follow this format:
-    {"fromDate": "<YYYY-MM-DD>", "endDate": "<YYYY-MM-DD or null>"}
-
-    Return ONLY a JSON object, nothing else. No text, no explanation.
-    Rules:
-    - Always return valid JSON.
-    - "fromDate" and "endDate" must be calculated based on today when this prompt is executed — NOT based on any examples below.
-    - If only "fromDate" is detected, set "endDate" to null.
-    - Dates must be in ISO format (YYYY-MM-DD).
-    - Correct common typos and misspellings in date words.
-    - Do not include extra text, only return the JSON object.
-
-    Examples (structure only — dates will depend on the real current date):
-    User: "my task today"
-    Output: {"fromDate": "<today>", "endDate": null}
-
-    User: "give me tasks on weekend"
-    Output: {"fromDate": "<Saturday>", "endDate": "<Sunday>"}
-
-    Now parse the following query:
-
-    "${query}"
-    `;
+    const prompt = getDateExtractionPrompt(today, query);
 
     try {
       const result = await this.generateResponse(prompt);

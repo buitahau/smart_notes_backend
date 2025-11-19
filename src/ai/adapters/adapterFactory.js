@@ -1,5 +1,6 @@
 import OpenRouterQueryAdapter from './impl/open-router/openRouterQueryAdapter.js';
 import OpenAIQueryAdapter from './impl/open-ai/openAIQueryAdapter.js';
+import GeminiQueryAdapter from './impl/gemini/geminiQueryAdapter.js';
 import ProviderEnum from './ProviderEnum.js';
 
 /**
@@ -41,7 +42,7 @@ class AdapterFactory {
    */
   static getAvailableProviders() {
     return Array.from(
-      new Set([ProviderEnum.OPEN_ROUTER, ProviderEnum.OPEN_AI])
+      new Set([ProviderEnum.OPEN_ROUTER, ProviderEnum.OPEN_AI, ProviderEnum.GEMINI])
     );
   }
 
@@ -61,6 +62,8 @@ class AdapterFactory {
         return this.createOpenRouterAdapter();
       case ProviderEnum.OPEN_AI:
         return this.createOpenAIAdapter();
+      case ProviderEnum.GEMINI:
+        return this.createGeminiAdapter();
       default:
         throw new Error(
           `Unsupported query adapter provider: ${normalizedProvider}. Available: ${this.getAvailableProviders().join(', ')}`
@@ -80,6 +83,11 @@ class AdapterFactory {
   static createOpenAIAdapter() {
     // The adapter manages its own configuration and API key internally
     return new OpenAIQueryAdapter();
+  }
+
+  static createGeminiAdapter() {
+    // The adapter manages its own configuration and API key internally
+    return new GeminiQueryAdapter();
   }
 
   /**
