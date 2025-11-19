@@ -11,6 +11,7 @@
     "format:check": "prettier --check \"src/**/*.{js,json}\""
   },
   "dependencies": {
+    "@google-cloud/vertexai": "^1.10.0",
     "@hono/node-server": "^1.19.5",
     "@neondatabase/serverless": "^1.0.1",
     "@supabase/supabase-js": "^2.38.0",

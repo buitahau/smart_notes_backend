@@ -1,9 +1,12 @@
 import AdapterFactory from '../ai/adapters/adapterFactory.js';
 import { queryTaskList as queryTaskListFunction } from '../ai/services/query/queryTaskList.js';
 import { queryDateLookup as queryDateLookupFunction } from '../ai/services/query/queryDateLookup.js';
-import { insertNote as insertNoteFunction ,
+import {
+  insertNote as insertNoteFunction,
   updateNote as updateNoteFunction,
-  deleteNote as deleteNoteFunction} from '../ai/services/note-service.js';
+  deleteNote as deleteNoteFunction
+} from '../ai/services/note-service.js';
+import ProviderEnum from '../ai/adapters/ProviderEnum.js';
 
 // Create context for Node.js environment
 const createContext = (userId, query, noteId, content, dateAt) => {
@@ -43,7 +46,7 @@ class AIService {
   async classifyQuery(query) {
     try {
       // Try to use the AI adapter first
-      const queryAdapter = AdapterFactory.getQueryAdapter();
+      const queryAdapter = AdapterFactory.getQueryAdapter(ProviderEnum.GEMINI);
       const result = await queryAdapter.classifyQuery(query);
       console.log('AI classification result:', result);
       return result;
