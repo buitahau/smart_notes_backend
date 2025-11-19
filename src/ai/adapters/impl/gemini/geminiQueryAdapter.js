@@ -200,6 +200,61 @@ class GeminiQueryAdapter extends QueryAdapter {
             return { $exists: true };
         }
     }
+
+    /**
+     * Create embeddings using Vertex AI
+     * @param {string} input - Text to create embeddings for
+     * @returns {Promise<number[]>} - Embedding vector
+     */
+    async createEmbedding(input) {
+        if (!input || typeof input !== 'string' || input.trim().length === 0) {
+            throw new Error('Input must be a non-empty string');
+        }
+
+        try {
+            // Get the embedding model
+            const embeddingModel = this.vertexAI.preview.getGenerativeModel({
+                model: GEMINI_CONFIGURATION.EMBEDDING_MODEL,
+            });
+
+            const request = {
+                content: {
+                    role: 'user',
+                    parts: [{ text: input.trim() }]
+                }
+            };
+
+            const result = await embeddingModel.generateContent(request);
+
+            // Extract embedding from response
+            if (!result.response || !result.response.candidates || result.response.candidates.length === 0) {
+                this.log('ERROR', 'Invalid embedding response - no candidates', { result });
+                throw new Error('Invalid embedding response from Gemini API: no candidates returned');
+            }
+
+            const candidate = result.response.candidates[0];
+            if (!candidate.content || !candidate.content.parts || candidate.content.parts.length === 0) {
+                this.log('ERROR', 'Invalid embedding response - no content parts', { candidate });
+                throw new Error('Invalid embedding response from Gemini API: no content parts');
+            }
+
+            // The embedding should be in the response
+            const embedding = candidate.content.parts[0].embedding || candidate.embedding;
+
+            if (!Array.isArray(embedding)) {
+                this.log('ERROR', 'Embedding is not an array', { embedding });
+                throw new Error('Gemini embeddings response is missing embedding data');
+            }
+
+            return embedding;
+        } catch (error) {
+            this.log('ERROR', 'Create embedding failed', {
+                error: error.message,
+                input: input.substring(0, 50),
+            });
+            throw error;
+        }
+    }
 }
 
 export default GeminiQueryAdapter;
