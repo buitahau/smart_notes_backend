@@ -44,6 +44,11 @@ export const userRepository = {
     return mapRowToUser(row);
   },
 
+  async getByIAMId(id) {
+    const [row] = await db.select().from(users).where(eq(users.iamId, id));
+    return mapRowToUser(row);
+  },
+
   async update(id, updateData) {
     const updateValues = { updatedAt: new Date() };
 

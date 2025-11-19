@@ -10,7 +10,6 @@ class SettingService {
   async createSetting(userId, receiveReminder, intervalMinutes) {
     try {
       const existing = await settingRepository.existingByUserId(userId);
-      console.log(existing);
       if (existing) {
         return {
           success: false,

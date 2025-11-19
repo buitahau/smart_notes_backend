@@ -59,6 +59,7 @@ export const welcomeUserQueueHandler = inngest.createFunction(
   { event: INNGEST_EVENTS.WELCOME_USER },
   async ({ event }) => {
     try {
+      console.log('Processing welcome user', event.data);
       return await processWelcomeUser(event.data ?? {});
     } catch (error) {
       return { success: false, error: error.message };

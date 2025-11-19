@@ -81,6 +81,12 @@ npm run dev
 
 The server will start on `http://localhost:3000`
 
+```bash
+npx inngest-cli@latest dev
+```
+
+The Inngest server will start on `http://localhost:8288`
+
 ## Release Flow (Git + Docker)
 
 1. Branch from `develop` for your work and raise a PR back to `develop` when ready.

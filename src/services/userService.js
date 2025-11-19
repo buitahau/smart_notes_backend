@@ -4,9 +4,15 @@ const normalizeString = value =>
   typeof value === 'string' ? value.trim() : value;
 
 class UserService {
-  async getUserDetail(userId, fallbackData = {}) {
+  async getUserDetail(userId) {
     try {
       let user = await userRepository.getById(userId);
+
+      if (user) {
+        return { success: true, user };
+      }
+
+      user = await userRepository.getByIAMId(userId);
 
       if (user) {
         return { success: true, user };
@@ -17,6 +23,7 @@ class UserService {
       return { success: false, error: error.message };
     }
   }
+
 
   async updateUser(userId, updates = {}) {
     try {
@@ -102,6 +109,31 @@ class UserService {
 
       return { success: true, user };
     } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  async updateIAMId( iamId, email ) {
+    try {
+      const normalizedEmail = normalizeString(email);
+
+      if (!iamId || !normalizedEmail) {
+        return { success: false, error: 'IAM id and email are required' };
+      }
+
+      const existingUser = await userRepository.getByEmail(normalizedEmail);
+      if (!existingUser) {
+        return { success: false, error: 'Not found user with email ' + email };
+      }
+
+      if (existingUser.iamId) {
+        return { success: true, existingUser };
+      }
+
+      const updated = await userRepository.update(existingUser.id, { iamId });
+      return { success: true, updated };
+    } catch (error) {
+      console.log(error);
       return { success: false, error: error.message };
     }
   }

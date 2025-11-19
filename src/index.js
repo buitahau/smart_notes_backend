@@ -10,7 +10,9 @@ import indexRoutes from './routes/indexes.js';
 import settingRoutes from './routes/settings.js';
 import userRoutes from './routes/users.js';
 import welcomeRoutes from './routes/welcome.js';
-import { inngestHandler } from './events/handler.js';
+import { serve } from 'inngest/hono';
+import inngest from './config/inngest.js';
+import { functions } from './events/handler.js';
 
 const app = new Hono();
 const PORT = process.env.PORT || 3000;
@@ -26,9 +28,7 @@ app.route('/api/settings', settingRoutes);
 app.route('/api/users', userRoutes);
 app.route('/welcome', welcomeRoutes);
 
-app.use('/api/inngest', async c => {
-  return inngestHandler(c);
-});
+app.use('/api/inngest', serve({ client: inngest, functions }));
 
 app.get('/', c => {
   return c.json({ message: 'API is running' });

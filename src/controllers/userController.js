@@ -169,28 +169,8 @@ class UserController {
 
   async getUserDetail(c) {
     const authUser = ensureAuthenticatedUser(c);
-    if (!authUser) return c;
 
-    if (!authUser.email) {
-      return c.json(
-        {
-          success: false,
-          message: 'Authenticated user does not include an email address',
-        },
-        400
-      );
-    }
-
-    const metadata = authUser.user_metadata || {};
-    const fallbackNames = {
-      firstName: metadata.firstName || metadata.first_name || '',
-      lastName: metadata.lastName || metadata.last_name || '',
-    };
-
-    const result = await userService.getUserDetail(authUser.id, {
-      email: authUser.email,
-      ...fallbackNames,
-    });
+    const result = await userService.getUserDetail(authUser.id);
 
     if (!result.success) {
       return c.json(
