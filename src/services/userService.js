@@ -1,4 +1,5 @@
 import { userRepository } from '../database/userRepository.js';
+import cacheService from './cacheService.js';
 
 const normalizeString = value =>
   typeof value === 'string' ? value.trim() : value;
@@ -71,6 +72,9 @@ class UserService {
 
       const updated = await userRepository.update(userId, updatePayload);
 
+      // Invalidate cache after update
+      cacheService.del(`user:${userId}`);
+
       return {
         success: true,
         user: updated ?? existing,
@@ -113,7 +117,7 @@ class UserService {
     }
   }
 
-  async updateIAMId( iamId, email ) {
+  async updateIAMId(iamId, email) {
     try {
       const normalizedEmail = normalizeString(email);
 
@@ -131,6 +135,10 @@ class UserService {
       }
 
       const updated = await userRepository.update(existingUser.id, { iamId });
+
+      // Invalidate cache after IAM ID update
+      cacheService.del(`user:${existingUser.id}`);
+
       return { success: true, updated };
     } catch (error) {
       console.log(error);
@@ -146,6 +154,10 @@ class UserService {
       }
 
       const deleted = await userRepository.delete(userId);
+
+      // Invalidate cache after deletion
+      cacheService.del(`user:${userId}`);
+
       return { success: true, user: deleted ?? existing };
     } catch (error) {
       return { success: false, error: error.message };
