@@ -9,8 +9,5 @@ router.use('*', authenticateToken);
 router.post('/', c => settingController.createSetting(c));
 router.get('/', c => settingController.getSetting(c));
 router.patch('/', c => settingController.partialUpdateSetting(c));
-router.post('/createDefaultSetting', c =>
-  settingController.createDefaultSetting(c)
-);
 
 export default router;

@@ -1,4 +1,5 @@
 import supabase from '../config/supabase.js';
+import { userRepository } from '../database/userRepository.js';
 
 const authenticateToken = async (c, next) => {
   try {
@@ -30,7 +31,18 @@ const authenticateToken = async (c, next) => {
       );
     }
 
-    c.set('user', user);
+    const userDb = await userRepository.getByIAMId(user.id);
+    if (!userDb) {
+      return c.json(
+        {
+          success: false,
+          message: 'Invalid or expired token',
+        },
+        401
+      );
+    }
+
+    c.set('user', userDb);
     await next();
   } catch (error) {
     return c.json(

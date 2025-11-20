@@ -170,21 +170,9 @@ class UserController {
   async getUserDetail(c) {
     const authUser = ensureAuthenticatedUser(c);
 
-    const result = await userService.getUserDetail(authUser.id);
-
-    if (!result.success) {
-      return c.json(
-        {
-          success: false,
-          message: result.error || 'Failed to load user profile',
-        },
-        result.error === 'User not found' ? 404 : 400
-      );
-    }
-
     return c.json({
       success: true,
-      user: mapUser(result.user),
+      user: authUser,
     });
   }
 
