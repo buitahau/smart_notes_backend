@@ -10,7 +10,7 @@ class CacheService {
         // stdTTL: standard time to live for each cache entry
         // checkperiod: automatic check for expired keys every 60 seconds
         this.cache = new NodeCache({
-            stdTTL: 300,
+            stdTTL: 86400,
             checkperiod: 60,
             useClones: false, // For better performance, don't clone objects
         });

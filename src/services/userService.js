@@ -131,7 +131,7 @@ class UserService {
       }
 
       if (existingUser.iamId) {
-        return { success: true, existingUser };
+        return { success: true, user: existingUser };
       }
 
       const updated = await userRepository.update(existingUser.id, { iamId });
@@ -139,7 +139,7 @@ class UserService {
       // Invalidate cache after IAM ID update
       cacheService.del(`user:${existingUser.id}`);
 
-      return { success: true, updated };
+      return { success: true, user: updated };
     } catch (error) {
       console.log(error);
       return { success: false, error: error.message };

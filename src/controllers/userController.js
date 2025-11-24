@@ -172,7 +172,7 @@ class UserController {
 
     return c.json({
       success: true,
-      user: authUser,
+      user: mapUser(authUser),
     });
   }
 
