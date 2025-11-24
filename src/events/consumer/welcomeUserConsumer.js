@@ -24,10 +24,15 @@ export const processWelcomeUser = async ({ id, email }) => {
   const existingUser = await userRepository.getByEmail(normalizedEmail);
 
   if (existingUser) {
-    const updated = await userRepository.update(existingUser.id, {
-      status: true,
-    });
-    const user = updated ?? existingUser;
+    let user = existingUser;
+
+    if (existingUser.status === false) {
+      const updated = await userRepository.update(existingUser.id, {
+        status: true,
+      });
+      user = updated ?? existingUser;
+    }
+
     await ensureDefaultSetting(user.id);
 
     return { success: true, user };
@@ -54,6 +59,7 @@ export const welcomeUserQueueHandler = inngest.createFunction(
   { event: INNGEST_EVENTS.WELCOME_USER },
   async ({ event }) => {
     try {
+      console.log('Processing welcome user', event.data);
       return await processWelcomeUser(event.data ?? {});
     } catch (error) {
       return { success: false, error: error.message };

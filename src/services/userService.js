@@ -1,10 +1,11 @@
 import { userRepository } from '../database/userRepository.js';
+import cacheService from './cacheService.js';
 
 const normalizeString = value =>
   typeof value === 'string' ? value.trim() : value;
 
 class UserService {
-  async getUserDetail(userId, fallbackData = {}) {
+  async getUserDetail(userId) {
     try {
       let user = await userRepository.getById(userId);
 
@@ -12,25 +13,18 @@ class UserService {
         return { success: true, user };
       }
 
-      if (!fallbackData.email) {
-        return {
-          success: false,
-          error: 'User not found',
-        };
+      user = await userRepository.getByIAMId(userId);
+
+      if (user) {
+        return { success: true, user };
       }
 
-      user = await userRepository.create({
-        id: userId,
-        email: fallbackData.email,
-        firstName: normalizeString(fallbackData.firstName) ?? '',
-        lastName: normalizeString(fallbackData.lastName) ?? '',
-      });
-
-      return { success: true, user };
+      return { success: false, error: "Not found user" };
     } catch (error) {
       return { success: false, error: error.message };
     }
   }
+
 
   async updateUser(userId, updates = {}) {
     try {
@@ -78,6 +72,9 @@ class UserService {
 
       const updated = await userRepository.update(userId, updatePayload);
 
+      // Invalidate cache after update
+      cacheService.del(`user:${userId}`);
+
       return {
         success: true,
         user: updated ?? existing,
@@ -111,10 +108,40 @@ class UserService {
         lastName: normalizeString(payload.lastName) ?? '',
         status:
           typeof payload.status === 'boolean' ? payload.status : false,
+        iamId: null,
       });
 
       return { success: true, user };
     } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  async updateIAMId(iamId, email) {
+    try {
+      const normalizedEmail = normalizeString(email);
+
+      if (!iamId || !normalizedEmail) {
+        return { success: false, error: 'IAM id and email are required' };
+      }
+
+      const existingUser = await userRepository.getByEmail(normalizedEmail);
+      if (!existingUser) {
+        return { success: false, error: 'Not found user with email ' + email };
+      }
+
+      if (existingUser.iamId) {
+        return { success: true, user: existingUser };
+      }
+
+      const updated = await userRepository.update(existingUser.id, { iamId });
+
+      // Invalidate cache after IAM ID update
+      cacheService.del(`user:${existingUser.id}`);
+
+      return { success: true, user: updated };
+    } catch (error) {
+      console.log(error);
       return { success: false, error: error.message };
     }
   }
@@ -127,6 +154,10 @@ class UserService {
       }
 
       const deleted = await userRepository.delete(userId);
+
+      // Invalidate cache after deletion
+      cacheService.del(`user:${userId}`);
+
       return { success: true, user: deleted ?? existing };
     } catch (error) {
       return { success: false, error: error.message };

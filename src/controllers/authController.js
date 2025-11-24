@@ -1,4 +1,7 @@
+import { publishWelcomeUserEvent } from '../events/producer/welcomeUserProducer.js';
 import authService from '../services/authService.js';
+import userService from '../services/userService.js';
+import crypto from 'crypto';
 
 class AuthController {
   async signInWithOtp(c) {
@@ -27,11 +30,18 @@ class AuthController {
         );
       }
 
+      await publishWelcomeUserEvent({
+        id: crypto.randomUUID(),
+        email: email,
+        status: true,
+      });
+
       return c.json({
         success: true,
         message: 'OTP sent successfully',
       });
     } catch (error) {
+      console.log(error);
       return c.json(
         {
           success: false,
@@ -68,12 +78,15 @@ class AuthController {
         );
       }
 
+      await userService.updateIAMId(result.user.id, email);
+
       return c.json({
         success: true,
         user: result.user,
         session: result.session,
       });
     } catch (error) {
+      console.log(error)
       return c.json(
         {
           success: false,

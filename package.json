@@ -19,6 +19,7 @@
     "drizzle-orm": "^0.44.5",
     "hono": "^4.9.9",
     "inngest": "^3.45.1",
+    "node-cache": "^5.1.2",
     "node-fetch": "^3.3.2"
   },
   "devDependencies": {

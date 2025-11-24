@@ -12,7 +12,8 @@ const mapRowToUser = row => {
     row.email,
     row.status ?? true,
     row.createdAt ? new Date(row.createdAt) : undefined,
-    row.updatedAt ? new Date(row.updatedAt) : undefined
+    row.updatedAt ? new Date(row.updatedAt) : undefined,
+    row.iamId ?? null
   );
 };
 
@@ -25,6 +26,7 @@ export const userRepository = {
         firstName: userData.firstName ?? '',
         lastName: userData.lastName ?? '',
         email: userData.email,
+        iamId: userData.iamId ?? null,
         status: userData.status ?? true,
       })
       .returning();
@@ -39,6 +41,11 @@ export const userRepository = {
 
   async getByEmail(email) {
     const [row] = await db.select().from(users).where(eq(users.email, email));
+    return mapRowToUser(row);
+  },
+
+  async getByIAMId(id) {
+    const [row] = await db.select().from(users).where(eq(users.iamId, id));
     return mapRowToUser(row);
   },
 
@@ -58,6 +65,9 @@ export const userRepository = {
     }
     if (updateData.status !== undefined) {
       updateValues.status = updateData.status;
+    }
+    if (updateData.iamId !== undefined) {
+      updateValues.iamId = updateData.iamId;
     }
 
     const [updated] = await db

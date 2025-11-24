@@ -1,5 +1,6 @@
 import crypto from 'crypto';
 import { settingRepository } from '../database/settingRepository.js';
+import cacheService from './cacheService.js';
 
 const DEFAULT_SETTING = {
   receiveReminder: true,
@@ -10,7 +11,6 @@ class SettingService {
   async createSetting(userId, receiveReminder, intervalMinutes) {
     try {
       const existing = await settingRepository.existingByUserId(userId);
-      console.log(existing);
       if (existing) {
         return {
           success: false,
@@ -37,7 +37,25 @@ class SettingService {
 
   async getSettingByUserId(userId) {
     try {
+      // Check cache first
+      const cacheKey = `setting:${userId}`;
+      const cachedSetting = cacheService.get(cacheKey);
+
+      if (cachedSetting) {
+        return {
+          success: true,
+          setting: cachedSetting,
+        };
+      }
+
+      // Not in cache, fetch from database
       const setting = await settingRepository.getByUserId(userId);
+
+      // Cache the setting data if found
+      if (setting) {
+        cacheService.set(cacheKey, setting);
+      }
+
       return {
         success: true,
         setting,
@@ -64,6 +82,9 @@ class SettingService {
         receiveReminder,
         intervalMinutes,
       });
+
+      // Invalidate cache after update
+      cacheService.del(`setting:${userId}`);
 
       return {
         success: true,
@@ -107,6 +128,9 @@ class SettingService {
         updatePayload
       );
 
+      // Invalidate cache after partial update
+      cacheService.del(`setting:${userId}`);
+
       return {
         success: true,
         setting: updated,
@@ -130,6 +154,10 @@ class SettingService {
       }
 
       await settingRepository.delete(existing.id);
+
+      // Invalidate cache after deletion
+      cacheService.del(`setting:${userId}`);
+
       return { success: true };
     } catch (error) {
       return {
