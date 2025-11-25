@@ -1,4 +1,4 @@
-import CloudFlareVectorizeService from "./cloud-flare/cloud-flare-vectorize-service.js";
+import CloudFlareVectorizeService from './cloud-flare/cloud-flare-vectorize-service.js';
 
 let serviceInstance = null;
 const getServiceInstance = () => {
@@ -6,7 +6,7 @@ const getServiceInstance = () => {
     serviceInstance = new CloudFlareVectorizeService();
   }
   return serviceInstance;
-}
+};
 
 export const createIndex = async () => {
   return getServiceInstance().createIndex();

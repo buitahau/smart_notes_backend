@@ -19,12 +19,11 @@ class UserService {
         return { success: true, user };
       }
 
-      return { success: false, error: "Not found user" };
+      return { success: false, error: 'Not found user' };
     } catch (error) {
       return { success: false, error: error.message };
     }
   }
-
 
   async updateUser(userId, updates = {}) {
     try {
@@ -106,8 +105,7 @@ class UserService {
         email,
         firstName: normalizeString(payload.firstName) ?? '',
         lastName: normalizeString(payload.lastName) ?? '',
-        status:
-          typeof payload.status === 'boolean' ? payload.status : false,
+        status: typeof payload.status === 'boolean' ? payload.status : false,
         iamId: null,
       });
 
@@ -163,7 +161,6 @@ class UserService {
       return { success: false, error: error.message };
     }
   }
-
 }
 
 const userService = new UserService();

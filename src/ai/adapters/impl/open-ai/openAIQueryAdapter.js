@@ -60,7 +60,7 @@ class OpenAIQueryAdapter extends QueryAdapter {
     if (!response.ok) {
       throw new Error(
         data?.error?.message ||
-        `OpenAI embeddings request failed: ${response.status}`
+          `OpenAI embeddings request failed: ${response.status}`
       );
     }
 

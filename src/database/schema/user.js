@@ -1,4 +1,10 @@
-import { pgTable, text, timestamp, uniqueIndex, boolean } from 'drizzle-orm/pg-core';
+import {
+  pgTable,
+  text,
+  timestamp,
+  uniqueIndex,
+  boolean,
+} from 'drizzle-orm/pg-core';
 
 export const users = pgTable(
   'users',

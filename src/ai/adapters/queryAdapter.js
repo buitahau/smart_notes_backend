@@ -29,9 +29,7 @@ class QueryAdapter {
   }
 
   async createEmbedding(input) {
-     throw new Error(
-      'createEmbedding method must be implemented by subclass'
-    );
+    throw new Error('createEmbedding method must be implemented by subclass');
   }
 }
 

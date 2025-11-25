@@ -5,7 +5,7 @@
  * @returns {string} - Formatted prompt
  */
 export const getDateExtractionPrompt = (today, query) => {
-    return `
+  return `
         You are a date parser. Today is ${today}
         Extract "specificDate", "startDate" and "endDate" from the user's query.
 

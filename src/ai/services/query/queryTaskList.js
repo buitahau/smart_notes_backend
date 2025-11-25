@@ -5,7 +5,7 @@ import ProviderEnum from '../../adapters/ProviderEnum.js';
 import { createEmbedding } from '../embedding-service.js';
 
 const extractDatesFromQuery = async (c, query) => {
-  const queryAdapter = AdapterFactory.getQueryAdapter(ProviderEnum.OPEN_AI);
+  const queryAdapter = AdapterFactory.getQueryAdapter(ProviderEnum.GEMINI);
   return await queryAdapter.extractDatesFromQuery(query);
 };
 

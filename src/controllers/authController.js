@@ -86,7 +86,7 @@ class AuthController {
         session: result.session,
       });
     } catch (error) {
-      console.log(error)
+      console.log(error);
       return c.json(
         {
           success: false,

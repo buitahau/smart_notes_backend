@@ -42,7 +42,11 @@ class AdapterFactory {
    */
   static getAvailableProviders() {
     return Array.from(
-      new Set([ProviderEnum.OPEN_ROUTER, ProviderEnum.OPEN_AI, ProviderEnum.GEMINI])
+      new Set([
+        ProviderEnum.OPEN_ROUTER,
+        ProviderEnum.OPEN_AI,
+        ProviderEnum.GEMINI,
+      ])
     );
   }
 
