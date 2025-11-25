@@ -1,7 +1,6 @@
 import supabase from '../config/supabase.js';
 
 class AuthService {
-
   async signInWithOtp(email) {
     try {
       const { data, error } = await supabase.auth.signInWithOtp({
@@ -48,7 +47,6 @@ class AuthService {
       };
     }
   }
-
 
   async signOut(accessToken) {
     try {

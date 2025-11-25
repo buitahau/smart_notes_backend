@@ -31,10 +31,7 @@ export const settingRepository = {
   },
 
   async getById(id) {
-    const [row] = await db
-      .select()
-      .from(settings)
-      .where(eq(settings.id, id));
+    const [row] = await db.select().from(settings).where(eq(settings.id, id));
     return mapRowToSetting(row);
   },
 

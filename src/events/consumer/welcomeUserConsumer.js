@@ -9,7 +9,10 @@ const normalizeString = value =>
 const ensureDefaultSetting = async userId => {
   const result = await settingService.createDefaultSetting(userId);
 
-  if (!result.success && result.error !== 'Setting already exists for this user') {
+  if (
+    !result.success &&
+    result.error !== 'Setting already exists for this user'
+  ) {
     throw new Error(result.error);
   }
 };

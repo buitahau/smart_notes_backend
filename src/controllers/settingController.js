@@ -83,12 +83,16 @@ class SettingController {
         return respondWithError(c, bodyResult.message, 400);
       }
 
-      const receiveReminder = this.getReceiveReminder(bodyResult.payload.receiveReminder);
+      const receiveReminder = this.getReceiveReminder(
+        bodyResult.payload.receiveReminder
+      );
       if (!receiveReminder.ok) {
         return respondWithError(c, receiveReminder.message, 400);
       }
 
-      const intervalMinutes = this.getIntervalMinutes(bodyResult.payload.intervalMinutes);
+      const intervalMinutes = this.getIntervalMinutes(
+        bodyResult.payload.intervalMinutes
+      );
       if (!intervalMinutes.ok) {
         return respondWithError(c, intervalMinutes.message, 400);
       }
@@ -210,21 +214,25 @@ class SettingController {
       }
 
       const updateData = {};
-      this.assignIfOk(updateData, "receiveReminder", this.getReceiveReminder(bodyResult.payload.receiveReminder));
-      this.assignIfOk(updateData, "intervalMinutes", this.getIntervalMinutes(bodyResult.payload.intervalMinutes));
-
-      if (Object.keys(updateData).length === 0) {
-        return respondWithError(c, "No fields to update.", 400);
-      }
-
-      const result = await settingService.partialUpdate(
-        userId,
-        updateData
+      this.assignIfOk(
+        updateData,
+        'receiveReminder',
+        this.getReceiveReminder(bodyResult.payload.receiveReminder)
+      );
+      this.assignIfOk(
+        updateData,
+        'intervalMinutes',
+        this.getIntervalMinutes(bodyResult.payload.intervalMinutes)
       );
 
+      if (Object.keys(updateData).length === 0) {
+        return respondWithError(c, 'No fields to update.', 400);
+      }
+
+      const result = await settingService.partialUpdate(userId, updateData);
+
       if (!result.success) {
-        const status =
-          result.error === 'Setting not found' ? 404 : 400;
+        const status = result.error === 'Setting not found' ? 404 : 400;
         return respondWithError(
           c,
           result.error || 'Failed to update setting',
@@ -246,7 +254,6 @@ class SettingController {
       );
     }
   }
-
 }
 
 export default new SettingController();

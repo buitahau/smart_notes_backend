@@ -22,12 +22,12 @@ class SettingService {
         id: crypto.randomUUID(),
         userId,
         receiveReminder,
-        intervalMinutes
+        intervalMinutes,
       });
 
       return { success: true, setting };
     } catch (error) {
-      console.log(error)
+      console.log(error);
       return {
         success: false,
         error: error.message,

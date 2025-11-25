@@ -4,7 +4,7 @@ import { queryDateLookup as queryDateLookupFunction } from '../ai/services/query
 import {
   insertNote as insertNoteFunction,
   updateNote as updateNoteFunction,
-  deleteNote as deleteNoteFunction
+  deleteNote as deleteNoteFunction,
 } from '../ai/services/note-service.js';
 import ProviderEnum from '../ai/adapters/ProviderEnum.js';
 
@@ -51,7 +51,10 @@ class AIService {
       console.log('AI classification result:', result);
       return result;
     } catch (error) {
-      throw new Error("AI classification failed. Please try again.", error.message);
+      throw new Error(
+        'AI classification failed. Please try again.',
+        error.message
+      );
     }
   }
 

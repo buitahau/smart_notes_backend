@@ -1,9 +1,9 @@
-import { INDEX_NAME, DIMENSIONS } from "./config.js";
-import { apiClient } from "./helper/fetch.js";
+import { INDEX_NAME, DIMENSIONS } from './config.js';
+import { apiClient } from './helper/fetch.js';
 import {
   getVectorizeBaseUrl,
   getVectorizeIndexUrl,
-} from "./helper/vectorize-helper.js";
+} from './helper/vectorize-helper.js';
 
 class CloudFlareVectorizeService {
   constructor() {
@@ -20,32 +20,28 @@ class CloudFlareVectorizeService {
   };
 
   async createIndex() {
-    return apiClient.post(
-      this.context,
-      getVectorizeBaseUrl(this.context),
-      {
-        name: INDEX_NAME,
-        config: {
-          dimensions: DIMENSIONS,
-          metric: "cosine",
-        },
-      }
-    );
+    return apiClient.post(this.context, getVectorizeBaseUrl(this.context), {
+      name: INDEX_NAME,
+      config: {
+        dimensions: DIMENSIONS,
+        metric: 'cosine',
+      },
+    });
   }
 
   async createMetadataIndex() {
     const metadataFields = [
       {
-        indexType: "string",
-        propertyName: "noteId",
+        indexType: 'string',
+        propertyName: 'noteId',
       },
       {
-        indexType: "string",
-        propertyName: "userId",
+        indexType: 'string',
+        propertyName: 'userId',
       },
       {
-        indexType: "string",
-        propertyName: "dateAt",
+        indexType: 'string',
+        propertyName: 'dateAt',
       },
     ];
 
@@ -62,7 +58,9 @@ class CloudFlareVectorizeService {
 
       const result = await apiClient.post(this.context, metadataUrl, payload);
       if (result.error) {
-        throw new Error(`Failed to create metadata index for ${propertyName}: ${result.error}`);
+        throw new Error(
+          `Failed to create metadata index for ${propertyName}: ${result.error}`
+        );
       }
     }
 
@@ -71,7 +69,7 @@ class CloudFlareVectorizeService {
 
   async deleteIndex(indexName) {
     if (!indexName) {
-      throw new Error("Index name is required");
+      throw new Error('Index name is required');
     }
 
     return apiClient.delete(
@@ -88,7 +86,12 @@ class CloudFlareVectorizeService {
   }
 
   async insertVector(noteId, userId, dateAtTimestamp, values) {
-    const vectorPayload = this._buildVectorPayload(noteId, userId, dateAtTimestamp, values);
+    const vectorPayload = this._buildVectorPayload(
+      noteId,
+      userId,
+      dateAtTimestamp,
+      values
+    );
 
     return apiClient.postNdjson(
       this.context,
@@ -98,7 +101,12 @@ class CloudFlareVectorizeService {
   }
 
   async upsertVector(noteId, userId, dateAtTimestamp, values) {
-    const vectorPayload = this._buildVectorPayload(noteId, userId, dateAtTimestamp, values);
+    const vectorPayload = this._buildVectorPayload(
+      noteId,
+      userId,
+      dateAtTimestamp,
+      values
+    );
 
     return apiClient.postNdjson(
       this.context,

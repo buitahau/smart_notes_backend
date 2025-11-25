@@ -1,5 +1,5 @@
 export const GEMINI_CONFIGURATION = {
-    GENERATE_CONTENT_MODEL: 'gemini-2.5-pro',
-    EMBEDDING_MODEL: 'text-embedding-004',
-    GEMINI_API_KEY_ENV_VAR: 'GEMINI_API_KEY',
+  GENERATE_CONTENT_MODEL: 'gemini-2.5-pro',
+  EMBEDDING_MODEL: 'text-embedding-004',
+  GEMINI_API_KEY_ENV_VAR: 'GEMINI_API_KEY',
 };

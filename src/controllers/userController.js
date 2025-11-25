@@ -146,8 +146,7 @@ class UserController {
     const result = await userService.createUser(payload.id.trim(), userPayload);
 
     if (!result.success) {
-      const statusCode =
-        result.error === 'User already exists' ? 409 : 400;
+      const statusCode = result.error === 'User already exists' ? 409 : 400;
 
       return c.json(
         {
@@ -255,10 +254,7 @@ class UserController {
       );
     }
 
-    if (
-      payload.email !== undefined &&
-      payload.email !== authUser.email
-    ) {
+    if (payload.email !== undefined && payload.email !== authUser.email) {
       return c.json(
         {
           success: false,
@@ -280,7 +276,8 @@ class UserController {
       return c.json(
         {
           success: false,
-          message: ensureResult.error || 'Unable to prepare user profile for update',
+          message:
+            ensureResult.error || 'Unable to prepare user profile for update',
         },
         400
       );

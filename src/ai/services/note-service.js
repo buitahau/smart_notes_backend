@@ -18,12 +18,7 @@ export const insertNote = async c => {
 
   const embedding = await createEmbedding(content);
 
-  const result = await insertVector(
-    noteId,
-    userId,
-    dateAtTimestmp,
-    embedding
-  );
+  const result = await insertVector(noteId, userId, dateAtTimestmp, embedding);
   return c.json(result);
 };
 
@@ -40,16 +35,10 @@ export const updateNote = async c => {
   const dateAtTimestamp = convertDateToTimestamp(dateAt);
   const embedding = await createEmbedding(content);
 
-  const result = await upsertVector(
-    noteId,
-    userId,
-    dateAtTimestamp,
-    embedding
-  );
+  const result = await upsertVector(noteId, userId, dateAtTimestamp, embedding);
 
   return c.json(result);
 };
-
 
 export const deleteNote = async c => {
   const { noteId } = await c.req.json();
