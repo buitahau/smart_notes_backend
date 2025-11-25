@@ -7,7 +7,7 @@ export const createEmbedding = async (input) => {
   }
 
   try {
-    const queryAdapter = AdapterFactory.getQueryAdapter(ProviderEnum.OPEN_AI);
+    const queryAdapter = AdapterFactory.getQueryAdapter(ProviderEnum.GEMINI);
     return queryAdapter.createEmbedding(input);
   } catch (error) {
     throw new Error(`Failed to create embedding: ${error.message}`);
