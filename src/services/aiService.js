@@ -58,6 +58,20 @@ class AIService {
     }
   }
 
+  async extractDateFilter(query) {
+    if (!query || typeof query !== 'string') {
+      return {};
+    }
+
+    try {
+      const queryAdapter = AdapterFactory.getQueryAdapter(ProviderEnum.GEMINI);
+      return await queryAdapter.extractDatesFromQuery(query);
+    } catch (error) {
+      console.error('Error extracting date filter from query:', error);
+      return {};
+    }
+  }
+
   async queryTaskList(userId, query) {
     try {
       const context = createContext(userId, query);

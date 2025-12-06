@@ -1,7 +1,8 @@
-import { EMBEDDING_MODEL } from '../../constants/config.js';
 import { getVectorizeIndexUrl } from '../vectorize/cloud-flare/helper/vectorize-helper.js';
 import { apiClient } from '../vectorize/cloud-flare/helper/fetch.js';
 import AdapterFactory from '../../adapters/adapterFactory.js';
+
+const EMBEDDING_MODEL = '@cf/baai/bge-base-en-v1.5';
 
 const extractKeywordAndTimeDirection = async query => {
   const queryAdapter = AdapterFactory.getQueryAdapter();

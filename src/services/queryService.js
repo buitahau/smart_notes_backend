@@ -56,12 +56,10 @@ class QueryService {
 
   async queryTaskList(userId, query) {
     try {
-      // Get note IDs from AI service
-      const noteIds = await aiService.queryTaskList(userId, query);
-      // Get notes by their IDs
-      const { success, notes, error } = await noteService.getNotesByIds(
-        noteIds,
-        userId
+      const dateFilter = await aiService.extractDateFilter(query);
+      const { success, notes, error } = await noteService.getNotesByDateFilter(
+        userId,
+        dateFilter
       );
 
       if (!success) {
