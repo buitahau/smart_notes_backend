@@ -88,7 +88,7 @@ export const noteRepository = {
     if (updateData.content !== undefined)
       updateValues.content = updateData.content;
     if (updateData.dateAt !== undefined)
-      updateValues.dateAt = updateData.dateAt;
+      updateValues.dateAt = new Date(updateData.dateAt);
 
     const [updatedNote] = await db
       .update(notes)
