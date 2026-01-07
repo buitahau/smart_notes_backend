@@ -80,21 +80,27 @@ const normalizeDateFilter = rawFilter => {
 };
 
 class NoteService {
-  async createNote(userId, content, dateAt) {
-    dateAt = new Date(new Date(dateAt).setUTCHours(0, 0, 0, 0)).toISOString();
+  async createNote(userId, content, dateAt, category) {
+    // Only normalize dateAt if it's not null (for 'on-a-date' category)
+    const normalizedDateAt = dateAt
+      ? new Date(new Date(dateAt).setUTCHours(0, 0, 0, 0)).toISOString()
+      : null;
+
     try {
       const noteData = {
         id: crypto.randomUUID(),
         userId: userId,
         content: content,
-        dateAt: dateAt,
+        category: category,
+        dateAt: normalizedDateAt,
       };
 
       const note = await noteRepository.create(noteData);
 
       // Fire and forget AI vector insert so note creation isn't blocked
+      // Only pass dateAt to AI service if it's not null
       aiService
-        .insertNote(note.id, content, userId, dateAt)
+        .insertNote(note.id, content, userId, normalizedDateAt)
         .catch(err => console.error('insertNote async error', err));
 
       return {
@@ -156,7 +162,7 @@ class NoteService {
     }
   }
 
-  async updateNote(noteId, userId, content, dateAt = null) {
+  async updateNote(noteId, userId, content, dateAt = undefined, category = undefined) {
     try {
       // First verify the note exists and belongs to the user
       const existingNote = await noteRepository.getById(noteId);
@@ -169,26 +175,43 @@ class NoteService {
 
       const updateData = {};
       // Only send fields that truly changed to the repository update
-      if (typeof content === 'string' && content !== existingNote.content) {
+      if (content !== undefined && typeof content === 'string' && content !== existingNote.content) {
         updateData.content = content;
       }
 
-      if (dateAt !== null) {
-        const incomingDate = dateAt instanceof Date ? dateAt : new Date(dateAt);
-        const existingDate = existingNote.dateAt;
-        const existingTime =
-          existingDate instanceof Date && !isNaN(existingDate.getTime())
-            ? existingDate.getTime()
-            : null;
-        const incomingTime =
-          incomingDate instanceof Date && !isNaN(incomingDate.getTime())
-            ? incomingDate.getTime()
+      if (category !== undefined && category !== null && category !== existingNote.category) {
+        updateData.category = category;
+      }
+
+      // Handle dateAt updates - can be null, a Date, or undefined
+      if (dateAt !== undefined) {
+        if (dateAt === null) {
+          // Explicitly setting to null (for general category)
+          const existingTime = existingNote.dateAt instanceof Date && !isNaN(existingNote.dateAt.getTime())
+            ? existingNote.dateAt.getTime()
             : null;
 
-        if (incomingTime !== null && incomingTime !== existingTime) {
-          updateData.dateAt = new Date(
-            new Date(incomingTime).setUTCHours(0, 0, 0, 0)
-          ).toISOString();
+          if (existingTime !== null) {
+            updateData.dateAt = null;
+          }
+        } else {
+          // Setting to a specific date (for on-a-date category)
+          const incomingDate = dateAt instanceof Date ? dateAt : new Date(dateAt);
+          const existingDate = existingNote.dateAt;
+          const existingTime =
+            existingDate instanceof Date && !isNaN(existingDate.getTime())
+              ? existingDate.getTime()
+              : null;
+          const incomingTime =
+            incomingDate instanceof Date && !isNaN(incomingDate.getTime())
+              ? incomingDate.getTime()
+              : null;
+
+          if (incomingTime !== null && incomingTime !== existingTime) {
+            updateData.dateAt = new Date(
+              new Date(incomingTime).setUTCHours(0, 0, 0, 0)
+            ).toISOString();
+          }
         }
       }
 

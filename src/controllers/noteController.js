@@ -7,52 +7,75 @@ const ONE_YEAR_IN_FUTURE = () => {
   return date;
 };
 
-const buildValidationError = (message, status = 400) => ({
-  ok: false,
-  status,
-  message,
-});
+const validateAndNormalize = (content, date, category) => {
 
-const validateAndNormalize = (content, date) => {
+  const { ok, errorMessage, normalizeContent } = validateAndNormalizeContent(content);
+  if (!ok) {
+    return { ok, errorMessage };
+  }
+
+  const { ok: categoryOk, errorMessage: categoryErrorMessage, normalizeCategory } = validateAndNormalizeCategory(category);
+  if (!categoryOk) {
+    return { ok: false, errorMessage: categoryErrorMessage };
+  }
+
+  let normalizeDate = null;
+  if (normalizeCategory != 'general') {
+    const { ok: dateOk, errorMessage: dateErrorMessage, normalizeDate: normalizeDateValue } = validateAndNormalizeDate(date);
+    if (!dateOk) {
+      return { ok: false, errorMessage: dateErrorMessage };
+    }
+    normalizeDate = normalizeDateValue;
+  }
+
+  return { ok: true, normalizedData: { content: normalizeContent, dateAt: normalizeDate, category: normalizeCategory } };
+};
+
+const validateAndNormalizeContent = (content) => {
   if (!content || typeof content !== 'string' || content.trim() === '') {
-    return buildValidationError(
-      'Note content is required and must be a non-empty string'
-    );
+    return { ok: false, errorMessage: 'Note content is required and must be a non-empty string' };
   }
 
   const trimmedContent = content.trim();
   if (trimmedContent.length > MAX_NOTE_LENGTH) {
-    return buildValidationError(
-      'Note content exceeds maximum length of 10,000 characters'
-    );
+    return { ok: false, errorMessage: 'Note content exceeds maximum length of 10,000 characters' };
   }
 
+  return { ok: true, normalizeContent: trimmedContent };
+};
+
+const validateAndNormalizeCategory = (category) => {
+  const validCategories = ['general', 'on-a-date'];
+  const normalizedCategory = category || 'general';
+
+  if (!validCategories.includes(normalizedCategory)) {
+    return { ok: false, errorMessage: "Category must be either 'general' or 'on-a-date'" };
+  }
+
+  return { ok: true, normalizeCategory: normalizedCategory };
+};
+
+const validateAndNormalizeDate = (date) => {
   if (!date || typeof date !== 'string' || date.trim() === '') {
-    return buildValidationError(
-      'Date is required and must be a valid ISO string'
-    );
+    return { ok: false, errorMessage: "Date is required for category 'on-a-date'" };
   }
 
   const parsedDate = new Date(date);
   if (isNaN(parsedDate.getTime())) {
-    return buildValidationError(
-      'Invalid date format. Please use ISO 8601 format (YYYY-MM-DDTHH:mm:ss.sssZ)'
-    );
+    return { ok: false, errorMessage: 'Invalid date format. Please use ISO 8601 format (YYYY-MM-DDTHH:mm:ss.sssZ)' };
   }
 
   if (parsedDate > ONE_YEAR_IN_FUTURE()) {
-    return buildValidationError(
-      'Date cannot be more than one year in the future'
-    );
+    return { ok: false, errorMessage: 'Date cannot be more than one year in the future' };
   }
 
-  return { ok: true, content: trimmedContent, dateAt: parsedDate };
+  return { ok: true, normalizeDate: parsedDate };
 };
 
 class NoteController {
   async createNote(c) {
     try {
-      const { content, date } = await c.req.json();
+      const { content, date, category } = await c.req.json();
       // Extract userId from authenticated user (set by authenticateToken middleware)
       const userId = c.get('user')?.id;
 
@@ -67,21 +90,23 @@ class NoteController {
         );
       }
 
-      const validation = validateAndNormalize(content, date);
-      if (!validation.ok) {
+      const { ok, errorMessage, normalizedData } = validateAndNormalize(content, date, category);
+
+      if (!ok) {
         return c.json(
           {
             success: false,
-            message: validation.message,
+            message: errorMessage,
           },
-          validation.status
+          400
         );
       }
 
       const result = await noteService.createNote(
         userId,
-        validation.content,
-        validation.dateAt
+        normalizedData.content,
+        normalizedData.dateAt,
+        normalizedData.category
       );
 
       if (!result.success) {
@@ -237,7 +262,7 @@ class NoteController {
   async updateNote(c) {
     try {
       const id = c.req.param('id');
-      const { content, date } = await c.req.json();
+      const { content, date, category } = await c.req.json();
       // Extract userId from authenticated user (set by authenticateToken middleware)
       const userId = c.get('user')?.id;
 
@@ -262,23 +287,24 @@ class NoteController {
           400
         );
       }
+      const { ok, errorMessage, normalizedData } = validateAndNormalize(content, date, category);
 
-      const validation = validateAndNormalize(content, date);
-      if (!validation.ok) {
+      if (!ok) {
         return c.json(
           {
             success: false,
-            message: validation.message,
+            message: errorMessage,
           },
-          validation.status
+          400
         );
       }
 
       const result = await noteService.updateNote(
         id.trim(),
         userId,
-        validation.content,
-        validation.dateAt
+        normalizedData.content,
+        normalizedData.dateAt,
+        normalizedData.category
       );
 
       if (!result.success) {

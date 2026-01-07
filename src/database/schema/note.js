@@ -4,6 +4,7 @@ export const notes = pgTable('notes', {
   id: text('id').primaryKey(),
   userId: text('user_id').notNull(),
   content: text('content').notNull(),
+  category: text('category').notNull().default('general'),
   createdAt: timestamp('created_at', { withTimezone: true })
     .defaultNow()
     .notNull(),
