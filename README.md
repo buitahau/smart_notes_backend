@@ -82,7 +82,7 @@ npm run dev
 The server will start on `http://localhost:3000`
 
 ```bash
-npx inngest-cli@latest dev
+npx inngest-cli@1.16.0 dev
 ```
 
 The Inngest server will start on `http://localhost:8288`

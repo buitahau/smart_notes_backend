@@ -1,0 +1,94 @@
+{
+    "compilerOptions": {
+        /* Language and Environment */
+        "target": "ES2022",
+        "lib": [
+            "ES2022"
+        ],
+        "module": "ESNext",
+        "moduleResolution": "bundler",
+        /* Emit */
+        "outDir": "./dist",
+        "rootDir": "./src",
+        "declaration": true,
+        "declarationMap": true,
+        "sourceMap": true,
+        "removeComments": true,
+        "importHelpers": true,
+        "importsNotUsedAsValues": "remove",
+        /* Interop Constraints */
+        "esModuleInterop": true,
+        "allowSyntheticDefaultImports": true,
+        "forceConsistentCasingInFileNames": true,
+        "isolatedModules": true,
+        "verbatimModuleSyntax": false,
+        /* Type Checking - NOT enabling strict mode initially */
+        "strict": false,
+        "noImplicitAny": false,
+        "strictNullChecks": false,
+        "strictFunctionTypes": false,
+        "strictBindCallApply": false,
+        "strictPropertyInitialization": false,
+        "noImplicitThis": false,
+        "alwaysStrict": false,
+        /* Additional Checks */
+        "noUnusedLocals": false,
+        "noUnusedParameters": false,
+        "noImplicitReturns": false,
+        "noFallthroughCasesInSwitch": true,
+        "noUncheckedIndexedAccess": false,
+        "noImplicitOverride": false,
+        "noPropertyAccessFromIndexSignature": false,
+        /* Completeness */
+        "skipLibCheck": true,
+        /* Advanced */
+        "resolveJsonModule": true,
+        "allowJs": true,
+        "checkJs": false,
+        "incremental": true,
+        "tsBuildInfoFile": "./dist/.tsbuildinfo",
+        /* Path Mapping */
+        "baseUrl": ".",
+        "paths": {
+            "@/*": [
+                "./src/*"
+            ],
+            "@/types/*": [
+                "./src/types/*"
+            ],
+            "@/models/*": [
+                "./src/models/*"
+            ],
+            "@/database/*": [
+                "./src/database/*"
+            ],
+            "@/services/*": [
+                "./src/services/*"
+            ],
+            "@/controllers/*": [
+                "./src/controllers/*"
+            ],
+            "@/middleware/*": [
+                "./src/middleware/*"
+            ],
+            "@/routes/*": [
+                "./src/routes/*"
+            ],
+            "@/config/*": [
+                "./src/config/*"
+            ],
+            "@/ai/*": [
+                "./src/ai/*"
+            ]
+        }
+    },
+    "include": [
+        "src/**/*"
+    ],
+    "exclude": [
+        "node_modules",
+        "dist",
+        "**/*.spec.ts",
+        "**/*.test.ts"
+    ]
+}
