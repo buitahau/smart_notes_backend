@@ -82,10 +82,8 @@ class AIService {
 
   async queryTaskList(userId, query) {
     try {
-      const context = createContext(userId, query);
-
       // Call the actual queryTaskList function from queryTaskList.js
-      return await queryTaskListFunction(context);
+      return await queryTaskListFunction(userId, query);
     } catch (error) {
       console.error('Error in queryTaskList:', error);
       // Fallback to empty array if vector search fails
@@ -122,85 +120,33 @@ class AIService {
     try {
       console.log('AIService.insertNote: ' + note.id + '/' + note.userId);
 
-      const context = createContext(note);
-
       // Call the actual insertNote function from insert.js
-      const result = await insertNoteFunction(context);
-
-      // Extract the result from the response
-      if (result && result.json) {
-        const insertResult = await result.json();
-        return insertResult;
-      }
+      await insertNoteFunction(note);
 
       return { success: true, note };
     } catch (error) {
       console.error('Error inserting note:', error);
-      // Fallback to mock success if vector insertion fails
-      console.warn('Vector insertion failed, returning mock success');
-      return { success: true, note };
+      return { success: false, note };
     }
   }
 
-  async updateNote(noteId, updateData) {
+  async updateNote(note: Note) {
     try {
-      const { userId, content, dateAt } = updateData || {};
-
-      if (!noteId || !userId) {
-        throw new Error('noteId and userId are required to update note');
-      }
-
-      const hasContentUpdate =
-        typeof content === 'string' && content.trim().length > 0;
-      const hasDateUpdate = Boolean(dateAt);
-
-      if (!hasContentUpdate && !hasDateUpdate) {
-        // Nothing meaningful to sync with the vector index
-        return { success: true, noteId, skipped: true };
-      }
-
-      const context = createContext(
-        userId,
-        null,
-        noteId,
-        hasContentUpdate ? content : '',
-        hasDateUpdate ? dateAt : null
-      );
-
-      const result = await updateNoteFunction(context);
-
-      if (result && result.json) {
-        const updateResult = await result.json();
-        return updateResult;
-      }
-
-      return { success: true, noteId };
+      await updateNoteFunction(note);
+      return { success: true, noteId: note.id };
     } catch (error) {
       console.error('Error updating note:', error);
-      console.warn('Vector update failed, returning mock success');
-      return { success: true, noteId };
+      return { success: false, noteId: note.id };
     }
   }
 
-  async deleteNote(noteId) {
+  async deleteNote(noteId: string) {
     try {
-      if (!noteId) {
-        throw new Error('noteId is required to delete note');
-      }
-
-      const context = createContext(null, null, noteId);
-      const result = await deleteNoteFunction(context);
-
-      if (result && result.json) {
-        const deleteResult = await result.json();
-        return deleteResult;
-      }
-
+      await deleteNoteFunction(noteId);
       return { success: true, noteId };
     } catch (error) {
       console.error('Error deleting note:', error);
-      console.warn('Vector delete failed, returning mock success');
-      return { success: true, noteId };
+      return { success: false, noteId };
     }
   }
 }

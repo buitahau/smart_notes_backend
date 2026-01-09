@@ -45,6 +45,10 @@ class CloudFlareVectorizeService {
         indexType: 'string',
         propertyName: 'dateAt',
       },
+      {
+        indexType: 'string',
+        propertyName: 'category',
+      },
     ];
 
     const metadataUrl = `${getVectorizeIndexUrl(
@@ -103,10 +107,11 @@ class CloudFlareVectorizeService {
     );
   }
 
-  async upsertVector(noteId, userId, dateAtTimestamp, values) {
+  async upsertVector(noteId, userId, category, dateAtTimestamp, values) {
     const vectorPayload = this._buildVectorPayload(
       noteId,
       userId,
+      category,
       dateAtTimestamp,
       values
     );

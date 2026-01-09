@@ -35,10 +35,11 @@ export const insertVector = async (note: Note, dateAtTimestamp, values) => {
   );
 };
 
-export const upsertVector = async (noteId, userId, dateAtTimestamp, values) => {
+export const upsertVector = async (note: Note, dateAtTimestamp, values) => {
   return getServiceInstance().upsertVector(
-    noteId,
-    userId,
+    note.id,
+    note.userId,
+    note.category,
     dateAtTimestamp,
     values
   );

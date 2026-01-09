@@ -177,13 +177,11 @@ class NoteService {
           error: 'Failed to update note',
         };
       }
+
       // aiService
-      //   .updateNote(updatedNote.id, {
-      //     userId: updatedNote.userId,
-      //     content: updatedNote.content,
-      //     dateAt: updatedNote.dateAt,
-      //   })
-      //   .catch(err => console.error('updateNote async error', err));
+      aiService
+        .updateNote(existingNote)
+        .catch(err => console.error('updateNote async error', err));
 
       return {
         success: true,
@@ -198,7 +196,7 @@ class NoteService {
     }
   }
 
-  async deleteNote(noteId, userId) {
+  async deleteNote(noteId: string, userId: string) {
     try {
       // First verify the note exists and belongs to the user
       const existingNote = await noteRepository.getById(noteId);
