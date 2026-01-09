@@ -66,7 +66,7 @@ class AIService {
     }
   }
 
-  async extractDateFilter(query) {
+  async extractDateFilter(query: string) {
     if (!query || typeof query !== 'string') {
       return {};
     }

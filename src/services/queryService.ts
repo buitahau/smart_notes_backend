@@ -4,7 +4,7 @@ import IntentEnum from '../enums/IntentEnum.js';
 import { AIResponseFactory } from '../models/AIResponse.js';
 
 class QueryService {
-  async query(userId, query) {
+  async query(userId: string, query: string) {
     try {
       // Get intent from AI service
       const intentResponse = await aiService.classifyQuery(query);
@@ -54,7 +54,7 @@ class QueryService {
     }
   }
 
-  async queryTaskList(userId, query) {
+  async queryTaskList(userId: string, query: string) {
     try {
       const dateFilter = await aiService.extractDateFilter(query);
       const { success, notes, error } = await noteService.getNotesByDateFilter(

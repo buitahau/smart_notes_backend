@@ -1,26 +1,23 @@
-import { getVectorizeIndexUrl } from '../vectorize/cloud-flare/helper/vectorize-helper.js';
-import { apiClient } from '../vectorize/cloud-flare/helper/fetch.js';
 import AdapterFactory from '../../adapters/adapterFactory.js';
 import ProviderEnum from '../../adapters/ProviderEnum.js';
 import { createEmbedding } from '../embedding-service.js';
+import CloudFlareVectorizeService from '../vectorize/cloud-flare/cloud-flare-vectorize-service.js';
 
-const extractDatesFromQuery = async (c, query) => {
+const extractDatesFromQuery = async (query) => {
   const queryAdapter = AdapterFactory.getQueryAdapter(ProviderEnum.GEMINI);
   return await queryAdapter.extractDatesFromQuery(query);
 };
 
-export const queryTaskList = async c => {
-  const { userId, query } = await c.req.json();
+export const queryTaskList = async (userId, query) => {
   if (!userId) {
-    return c.json({ error: 'Missing userId' }, 400);
+    return { error: 'Missing userId' };
   }
 
-  const filter = { userId };
+  let filter = { userId };
 
   // Extract dates from query
-  const dateFilter = await extractDatesFromQuery(c, query);
-  if (dateFilter || dateFilter != {}) {
-    console.log('Extracted date filter:', dateFilter);
+  const dateFilter = await extractDatesFromQuery(query);
+  if (dateFilter) {
     filter.dateAt = dateFilter;
   } else {
     console.error('Can not extract the dates from query ' + query);
@@ -28,14 +25,9 @@ export const queryTaskList = async c => {
 
   const embeddingVector = await createEmbedding(query);
 
-  const data = await apiClient.post(c, `${getVectorizeIndexUrl(c)}/query`, {
-    vector: embeddingVector,
-    topK: 10,
-    returnMetadata: 'all',
-    returnValues: false,
-    filter,
-  });
+  const vectorizeService = new CloudFlareVectorizeService();
+  const matches = await vectorizeService.queryVectors(embeddingVector, filter, 10);
 
-  const noteIds = (data.result?.matches || []).map(m => m.metadata.noteId);
+  const noteIds = matches.map(m => m.metadata.noteId);
   return noteIds;
 };

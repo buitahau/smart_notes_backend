@@ -131,6 +131,22 @@ class CloudFlareVectorizeService {
     );
   }
 
+  async queryVectors(embeddingVector, filter, topK = 10) {
+    const data = await apiClient.post(
+      this.context,
+      `${getVectorizeIndexUrl(this.context)}/query`,
+      {
+        vector: embeddingVector,
+        topK,
+        returnMetadata: 'all',
+        returnValues: false,
+        filter,
+      }
+    );
+
+    return data.result?.matches || [];
+  }
+
   _buildVectorPayload(noteId, userId, category, dateAtTimestamp, values) {
     return {
       id: noteId,

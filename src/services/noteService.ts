@@ -250,7 +250,7 @@ class NoteService {
     }
   }
 
-  async getNotesByDateFilter(userId, rawDateFilter) {
+  async getNotesByDateFilter(userId: string, rawDateFilter: any) {
     try {
       if (!userId) {
         return {

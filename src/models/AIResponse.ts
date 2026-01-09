@@ -82,6 +82,10 @@ class AIResponseFactory {
     static createClassification(intent: string, success: boolean = true, error: string | null = null): ClassificationResponse {
         return new ClassificationResponse(intent, success, error);
     }
+
+    static createError(intent: string, error: string): AIResponse {
+        return new AIResponse(intent, null, false, error);
+    }
 }
 
 export {
