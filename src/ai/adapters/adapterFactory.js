@@ -1,6 +1,7 @@
 import OpenRouterQueryAdapter from './impl/open-router/openRouterQueryAdapter.js';
 import OpenAIQueryAdapter from './impl/open-ai/openAIQueryAdapter.js';
 import GeminiQueryAdapter from './impl/gemini/geminiQueryAdapter.js';
+import CliProxyQueryAdapter from './impl/cliproxy/cliproxyQueryAdapter.js';
 import ProviderEnum from './ProviderEnum.js';
 
 /**
@@ -46,6 +47,7 @@ class AdapterFactory {
         ProviderEnum.OPEN_ROUTER,
         ProviderEnum.OPEN_AI,
         ProviderEnum.GEMINI,
+        ProviderEnum.CLIPROXY,
       ])
     );
   }
@@ -68,6 +70,8 @@ class AdapterFactory {
         return this.createOpenAIAdapter();
       case ProviderEnum.GEMINI:
         return this.createGeminiAdapter();
+      case ProviderEnum.CLIPROXY:
+        return this.createCliProxyAdapter();
       default:
         throw new Error(
           `Unsupported query adapter provider: ${normalizedProvider}. Available: ${this.getAvailableProviders().join(', ')}`
@@ -92,6 +96,10 @@ class AdapterFactory {
   static createGeminiAdapter() {
     // The adapter manages its own configuration and API key internally
     return new GeminiQueryAdapter();
+  }
+
+  static createCliProxyAdapter() {
+    return new CliProxyQueryAdapter();
   }
 
   /**

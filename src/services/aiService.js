@@ -46,7 +46,7 @@ class AIService {
   async classifyQuery(query) {
     try {
       // Try to use the AI adapter first
-      const queryAdapter = AdapterFactory.getQueryAdapter(ProviderEnum.GEMINI);
+      const queryAdapter = AdapterFactory.getQueryAdapter(ProviderEnum.CLIPROXY);
       const result = await queryAdapter.classifyQuery(query);
       console.log('AI classification result:', result);
       return result;
@@ -64,7 +64,7 @@ class AIService {
     }
 
     try {
-      const queryAdapter = AdapterFactory.getQueryAdapter(ProviderEnum.GEMINI);
+      const queryAdapter = AdapterFactory.getQueryAdapter(ProviderEnum.CLIPROXY);
       return await queryAdapter.extractDatesFromQuery(query);
     } catch (error) {
       console.error('Error extracting date filter from query:', error);
