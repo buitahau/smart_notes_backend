@@ -29,14 +29,16 @@ export const insertVector = async (
   userId,
   dateAtTimestamp,
   values,
-  category
+  category,
+  status
 ) => {
   return getServiceInstance().insertVector(
     noteId,
     userId,
     dateAtTimestamp,
     values,
-    category
+    category,
+    status
   );
 };
 
@@ -45,14 +47,16 @@ export const upsertVector = async (
   userId,
   dateAtTimestamp,
   values,
-  category
+  category,
+  status
 ) => {
   return getServiceInstance().upsertVector(
     noteId,
     userId,
     dateAtTimestamp,
     values,
-    category
+    category,
+    status
   );
 };
 

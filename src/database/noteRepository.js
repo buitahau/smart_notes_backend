@@ -10,7 +10,8 @@ const mapRowToNote = row => {
     row.content,
     new Date(row.dateAt),
     new Date(row.createdAt),
-    row.category
+    row.category,
+    row.status
   );
 };
 
@@ -25,6 +26,7 @@ export const noteRepository = {
         content: noteData.content,
         dateAt: new Date(noteData.dateAt),
         category: noteData.category,
+        status: noteData.status,
       })
       .returning();
 
@@ -93,6 +95,8 @@ export const noteRepository = {
       updateValues.dateAt = new Date(updateData.dateAt);
     if (updateData.category !== undefined)
       updateValues.category = updateData.category;
+    if (updateData.status !== undefined)
+      updateValues.status = updateData.status;
 
     const [updatedNote] = await db
       .update(notes)

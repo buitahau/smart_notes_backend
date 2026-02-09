@@ -9,7 +9,15 @@ import {
 import ProviderEnum from '../ai/adapters/ProviderEnum.js';
 
 // Create context for Node.js environment
-const createContext = (userId, query, noteId, content, dateAt, category) => {
+const createContext = (
+  userId,
+  query,
+  noteId,
+  content,
+  dateAt,
+  category,
+  status
+) => {
   return {
     env: {
       AI: {
@@ -28,7 +36,7 @@ const createContext = (userId, query, noteId, content, dateAt, category) => {
     req: {
       json: async () =>
         noteId
-          ? { noteId, content, userId, dateAt, category }
+          ? { noteId, content, userId, dateAt, category, status }
           : { userId, query },
     },
     json: data => data,
@@ -112,7 +120,7 @@ class AIService {
     }
   }
 
-  async insertNote(noteId, content, userId, dateAt, category) {
+  async insertNote(noteId, content, userId, dateAt, category, status) {
     try {
       console.log('AIService.insertNote: ' + noteId + '/' + userId);
 
@@ -122,7 +130,8 @@ class AIService {
         noteId,
         content,
         dateAt,
-        category
+        category,
+        status
       );
 
       // Call the actual insertNote function from insert.js
@@ -155,8 +164,14 @@ class AIService {
         typeof content === 'string' && content.trim().length > 0;
       const hasDateUpdate = Boolean(dateAt);
       const hasCategoryUpdate = updateData.category !== undefined;
+      const hasStatusUpdate = updateData.status !== undefined;
 
-      if (!hasContentUpdate && !hasDateUpdate && !hasCategoryUpdate) {
+      if (
+        !hasContentUpdate &&
+        !hasDateUpdate &&
+        !hasCategoryUpdate &&
+        !hasStatusUpdate
+      ) {
         // Nothing meaningful to sync with the vector index
         return { success: true, noteId, skipped: true };
       }
@@ -167,7 +182,8 @@ class AIService {
         noteId,
         hasContentUpdate ? content : '',
         hasDateUpdate ? dateAt : null,
-        hasCategoryUpdate ? updateData.category : null
+        hasCategoryUpdate ? updateData.category : null,
+        hasStatusUpdate ? updateData.status : null
       );
 
       const result = await updateNoteFunction(context);

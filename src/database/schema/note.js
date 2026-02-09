@@ -9,4 +9,5 @@ export const notes = pgTable('notes', {
     .notNull(),
   dateAt: timestamp('date_at', { withTimezone: true }),
   category: text('category'),
+  status: text('status'),
 });

@@ -7,7 +7,8 @@ import {
 } from './vectorize/vectorize-service.js';
 
 export const insertNote = async c => {
-  const { noteId, content, userId, dateAt, category } = await c.req.json();
+  const { noteId, content, userId, dateAt, category, status } =
+    await c.req.json();
   if (!noteId || !userId || !content || !dateAt) {
     return c.json(
       { error: 'Missing fields: noteId, content, userId, dateAt' },
@@ -23,13 +24,15 @@ export const insertNote = async c => {
     userId,
     dateAtTimestmp,
     embedding,
-    category
+    category,
+    status
   );
   return c.json(result);
 };
 
 export const updateNote = async c => {
-  const { noteId, content, userId, dateAt, category } = await c.req.json();
+  const { noteId, content, userId, dateAt, category, status } =
+    await c.req.json();
 
   if (!noteId || !userId) {
     return c.json(
@@ -46,7 +49,8 @@ export const updateNote = async c => {
     userId,
     dateAtTimestamp,
     embedding,
-    category
+    category,
+    status
   );
 
   return c.json(result);

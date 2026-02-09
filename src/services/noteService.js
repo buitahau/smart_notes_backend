@@ -80,7 +80,7 @@ const normalizeDateFilter = rawFilter => {
 };
 
 class NoteService {
-  async createNote(userId, content, dateAt, category) {
+  async createNote(userId, content, dateAt, category, status) {
     dateAt = new Date(new Date(dateAt).setUTCHours(0, 0, 0, 0)).toISOString();
     try {
       const noteData = {
@@ -89,13 +89,14 @@ class NoteService {
         content: content,
         dateAt: dateAt,
         category: category,
+        status: status,
       };
 
       const note = await noteRepository.create(noteData);
 
       // Fire and forget AI vector insert so note creation isn't blocked
       aiService
-        .insertNote(note.id, content, userId, dateAt, category)
+        .insertNote(note.id, content, userId, dateAt, category, status)
         .catch(err => console.error('insertNote async error', err));
 
       return {
@@ -157,7 +158,14 @@ class NoteService {
     }
   }
 
-  async updateNote(noteId, userId, content, dateAt = null, category = null) {
+  async updateNote(
+    noteId,
+    userId,
+    content,
+    dateAt = null,
+    category = null,
+    status = null
+  ) {
     try {
       // First verify the note exists and belongs to the user
       const existingNote = await noteRepository.getById(noteId);
@@ -197,6 +205,10 @@ class NoteService {
         updateData.category = category;
       }
 
+      if (status !== null && status !== existingNote.status) {
+        updateData.status = status;
+      }
+
       if (Object.keys(updateData).length === 0) {
         return {
           success: true,
@@ -217,6 +229,7 @@ class NoteService {
           content: updatedNote.content,
           dateAt: updatedNote.dateAt,
           category: updatedNote.category,
+          status: updatedNote.status,
         })
         .catch(err => console.error('updateNote async error', err));
 
