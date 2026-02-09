@@ -9,7 +9,7 @@ import {
 import ProviderEnum from '../ai/adapters/ProviderEnum.js';
 
 // Create context for Node.js environment
-const createContext = (userId, query, noteId, content, dateAt) => {
+const createContext = (userId, query, noteId, content, dateAt, category) => {
   return {
     env: {
       AI: {
@@ -27,7 +27,9 @@ const createContext = (userId, query, noteId, content, dateAt) => {
     },
     req: {
       json: async () =>
-        noteId ? { noteId, content, userId, dateAt } : { userId, query },
+        noteId
+          ? { noteId, content, userId, dateAt, category }
+          : { userId, query },
     },
     json: data => data,
   };
@@ -110,11 +112,18 @@ class AIService {
     }
   }
 
-  async insertNote(noteId, content, userId, dateAt) {
+  async insertNote(noteId, content, userId, dateAt, category) {
     try {
       console.log('AIService.insertNote: ' + noteId + '/' + userId);
 
-      const context = createContext(userId, null, noteId, content, dateAt);
+      const context = createContext(
+        userId,
+        null,
+        noteId,
+        content,
+        dateAt,
+        category
+      );
 
       // Call the actual insertNote function from insert.js
       const result = await insertNoteFunction(context);
@@ -145,8 +154,9 @@ class AIService {
       const hasContentUpdate =
         typeof content === 'string' && content.trim().length > 0;
       const hasDateUpdate = Boolean(dateAt);
+      const hasCategoryUpdate = updateData.category !== undefined;
 
-      if (!hasContentUpdate && !hasDateUpdate) {
+      if (!hasContentUpdate && !hasDateUpdate && !hasCategoryUpdate) {
         // Nothing meaningful to sync with the vector index
         return { success: true, noteId, skipped: true };
       }
@@ -156,7 +166,8 @@ class AIService {
         null,
         noteId,
         hasContentUpdate ? content : '',
-        hasDateUpdate ? dateAt : null
+        hasDateUpdate ? dateAt : null,
+        hasCategoryUpdate ? updateData.category : null
       );
 
       const result = await updateNoteFunction(context);

@@ -24,21 +24,35 @@ export const listMetadataIndex = async () => {
   return getServiceInstance().listMetadataIndex();
 };
 
-export const insertVector = async (noteId, userId, dateAtTimestamp, values) => {
+export const insertVector = async (
+  noteId,
+  userId,
+  dateAtTimestamp,
+  values,
+  category
+) => {
   return getServiceInstance().insertVector(
     noteId,
     userId,
     dateAtTimestamp,
-    values
+    values,
+    category
   );
 };
 
-export const upsertVector = async (noteId, userId, dateAtTimestamp, values) => {
+export const upsertVector = async (
+  noteId,
+  userId,
+  dateAtTimestamp,
+  values,
+  category
+) => {
   return getServiceInstance().upsertVector(
     noteId,
     userId,
     dateAtTimestamp,
-    values
+    values,
+    category
   );
 };
 
