@@ -15,6 +15,8 @@ class QueryService {
           return await this.queryTaskList(userId, query);
         case IntentEnum.DATE_LOOKUP:
           return await this.queryDateLookup(userId, query);
+        case IntentEnum.INFORMATION_RETRIEVAL:
+          return await this.queryInformationRetrieval(userId, query);
         default:
           // Default to task list for unknown intents
           return await this.queryTaskList(userId, query);
@@ -73,6 +75,41 @@ class QueryService {
     } catch (error) {
       console.error('Error in task list query:', error);
       return AIResponseFactory.createError(IntentEnum.TASK_LIST, error.message);
+    }
+  }
+
+  async queryInformationRetrieval(userId, query) {
+    try {
+      console.log(
+        'QueryService.queryInformationRetrieval: ' + userId + '/' + query
+      );
+      // For now, information retrieval acts similar to vector search but logically separated
+      // In the future, this could involve RAG (Retrieval Augmented Generation)
+      const noteIds = await aiService.queryInformationRetrieval(userId, query);
+
+      // Get notes by their IDs
+      const { success, notes, error } = await noteService.getNotesByIds(
+        noteIds,
+        userId
+      );
+
+      if (!success) {
+        return AIResponseFactory.createError(
+          IntentEnum.INFORMATION_RETRIEVAL,
+          error || 'Failed to fetch notes'
+        );
+      }
+
+      return AIResponseFactory.create(
+        IntentEnum.INFORMATION_RETRIEVAL,
+        notes || []
+      );
+    } catch (error) {
+      console.error('Error in information retrieval query:', error);
+      return AIResponseFactory.createError(
+        IntentEnum.INFORMATION_RETRIEVAL,
+        error.message
+      );
     }
   }
 }

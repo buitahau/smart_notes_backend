@@ -1,6 +1,7 @@
 import AdapterFactory from '../ai/adapters/adapterFactory.js';
 import { queryTaskList as queryTaskListFunction } from '../ai/services/query/queryTaskList.js';
 import { queryDateLookup as queryDateLookupFunction } from '../ai/services/query/queryDateLookup.js';
+import { queryInformationRetrieval as queryInformationRetrievalFunction } from '../ai/services/query/queryInformationRetrieval.js';
 import {
   insertNote as insertNoteFunction,
   updateNote as updateNoteFunction,
@@ -114,6 +115,32 @@ class AIService {
       return [];
     } catch (error) {
       console.error('Error in queryDateLookup:', error);
+      // Fallback to empty array if vector search fails
+      console.warn('Vector search failed, returning empty array');
+      return [];
+    }
+  }
+
+  async queryInformationRetrieval(userId, query) {
+    try {
+      console.log(
+        'AIService.queryInformationRetrieval: ' + userId + '/' + query
+      );
+
+      const context = createContext(userId, query);
+
+      // Use the dedicated queryInformationRetrievalFunction
+      const result = await queryInformationRetrievalFunction(context);
+
+      // Extract note IDs from the result
+      if (result && result.json) {
+        const noteIds = await result.json();
+        return noteIds;
+      }
+
+      return [];
+    } catch (error) {
+      console.error('Error in queryInformationRetrieval:', error);
       // Fallback to empty array if vector search fails
       console.warn('Vector search failed, returning empty array');
       return [];
