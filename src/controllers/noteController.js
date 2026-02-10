@@ -49,10 +49,56 @@ const validateAndNormalize = (content, date) => {
   return { ok: true, content: trimmedContent, dateAt: parsedDate };
 };
 
+const validateAndNormalizePartial = (content, date) => {
+  const result = { ok: true };
+
+  if (content !== undefined) {
+    if (typeof content !== 'string' || content.trim() === '') {
+      return buildValidationError(
+        'Note content must be a non-empty string'
+      );
+    }
+
+    const trimmedContent = content.trim();
+    if (trimmedContent.length > MAX_NOTE_LENGTH) {
+      return buildValidationError(
+        'Note content exceeds maximum length of 10,000 characters'
+      );
+    }
+
+    result.content = trimmedContent;
+  }
+
+  if (date !== undefined) {
+    if (typeof date !== 'string' || date.trim() === '') {
+      return buildValidationError(
+        'Date must be a valid ISO string'
+      );
+    }
+
+    const parsedDate = new Date(date);
+    if (isNaN(parsedDate.getTime())) {
+      return buildValidationError(
+        'Invalid date format. Please use ISO 8601 format (YYYY-MM-DDTHH:mm:ss.sssZ)'
+      );
+    }
+
+    if (parsedDate > ONE_YEAR_IN_FUTURE()) {
+      return buildValidationError(
+        'Date cannot be more than one year in the future'
+      );
+    }
+
+    result.dateAt = parsedDate;
+  }
+
+  return result;
+};
+
 class NoteController {
   async createNote(c) {
     try {
-      const { content, date } = await c.req.json();
+      const { content, date, category } = await c.req.json();
       // Extract userId from authenticated user (set by authenticateToken middleware)
       const userId = c.get('user')?.id;
 
@@ -81,7 +127,9 @@ class NoteController {
       const result = await noteService.createNote(
         userId,
         validation.content,
-        validation.dateAt
+        validation.dateAt,
+        category,
+        'Active'
       );
 
       if (!result.success) {
@@ -237,7 +285,7 @@ class NoteController {
   async updateNote(c) {
     try {
       const id = c.req.param('id');
-      const { content, date } = await c.req.json();
+      const { content, date, category } = await c.req.json();
       // Extract userId from authenticated user (set by authenticateToken middleware)
       const userId = c.get('user')?.id;
 
@@ -263,7 +311,7 @@ class NoteController {
         );
       }
 
-      const validation = validateAndNormalize(content, date);
+      const validation = validateAndNormalizePartial(content, date);
       if (!validation.ok) {
         return c.json(
           {
@@ -278,7 +326,8 @@ class NoteController {
         id.trim(),
         userId,
         validation.content,
-        validation.dateAt
+        validation.dateAt,
+        category
       );
 
       if (!result.success) {
