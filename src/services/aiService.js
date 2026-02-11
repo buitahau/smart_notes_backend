@@ -1,6 +1,7 @@
 import AdapterFactory from '../ai/adapters/adapterFactory.js';
 import { queryTaskList as queryTaskListFunction } from '../ai/services/query/queryTaskList.js';
 import { queryDateLookup as queryDateLookupFunction } from '../ai/services/query/queryDateLookup.js';
+import { queryInformationRetrieval as queryInformationRetrievalFunction } from '../ai/services/query/queryInformationRetrieval.js';
 import {
   insertNote as insertNoteFunction,
   updateNote as updateNoteFunction,
@@ -9,7 +10,15 @@ import {
 import ProviderEnum from '../ai/adapters/ProviderEnum.js';
 
 // Create context for Node.js environment
-const createContext = (userId, query, noteId, content, dateAt) => {
+const createContext = (
+  userId,
+  query,
+  noteId,
+  content,
+  dateAt,
+  category,
+  status
+) => {
   return {
     env: {
       AI: {
@@ -27,7 +36,9 @@ const createContext = (userId, query, noteId, content, dateAt) => {
     },
     req: {
       json: async () =>
-        noteId ? { noteId, content, userId, dateAt } : { userId, query },
+        noteId
+          ? { noteId, content, userId, dateAt, category, status }
+          : { userId, query },
     },
     json: data => data,
   };
@@ -46,7 +57,7 @@ class AIService {
   async classifyQuery(query) {
     try {
       // Try to use the AI adapter first
-      const queryAdapter = AdapterFactory.getQueryAdapter(ProviderEnum.GEMINI);
+      const queryAdapter = AdapterFactory.getQueryAdapter(ProviderEnum.CLIPROXY);
       const result = await queryAdapter.classifyQuery(query);
       console.log('AI classification result:', result);
       return result;
@@ -64,7 +75,7 @@ class AIService {
     }
 
     try {
-      const queryAdapter = AdapterFactory.getQueryAdapter(ProviderEnum.GEMINI);
+      const queryAdapter = AdapterFactory.getQueryAdapter(ProviderEnum.CLIPROXY);
       return await queryAdapter.extractDatesFromQuery(query);
     } catch (error) {
       console.error('Error extracting date filter from query:', error);
@@ -110,11 +121,45 @@ class AIService {
     }
   }
 
-  async insertNote(noteId, content, userId, dateAt) {
+  async queryInformationRetrieval(userId, query) {
+    try {
+      console.log(
+        'AIService.queryInformationRetrieval: ' + userId + '/' + query
+      );
+
+      const context = createContext(userId, query);
+
+      // Use the dedicated queryInformationRetrievalFunction
+      const result = await queryInformationRetrievalFunction(context);
+
+      // Extract note IDs from the result
+      if (result && result.json) {
+        const noteIds = await result.json();
+        return noteIds;
+      }
+
+      return [];
+    } catch (error) {
+      console.error('Error in queryInformationRetrieval:', error);
+      // Fallback to empty array if vector search fails
+      console.warn('Vector search failed, returning empty array');
+      return [];
+    }
+  }
+
+  async insertNote(noteId, content, userId, dateAt, category, status) {
     try {
       console.log('AIService.insertNote: ' + noteId + '/' + userId);
 
-      const context = createContext(userId, null, noteId, content, dateAt);
+      const context = createContext(
+        userId,
+        null,
+        noteId,
+        content,
+        dateAt,
+        category,
+        status
+      );
 
       // Call the actual insertNote function from insert.js
       const result = await insertNoteFunction(context);
@@ -145,8 +190,15 @@ class AIService {
       const hasContentUpdate =
         typeof content === 'string' && content.trim().length > 0;
       const hasDateUpdate = Boolean(dateAt);
+      const hasCategoryUpdate = updateData.category !== undefined;
+      const hasStatusUpdate = updateData.status !== undefined;
 
-      if (!hasContentUpdate && !hasDateUpdate) {
+      if (
+        !hasContentUpdate &&
+        !hasDateUpdate &&
+        !hasCategoryUpdate &&
+        !hasStatusUpdate
+      ) {
         // Nothing meaningful to sync with the vector index
         return { success: true, noteId, skipped: true };
       }
@@ -156,7 +208,9 @@ class AIService {
         null,
         noteId,
         hasContentUpdate ? content : '',
-        hasDateUpdate ? dateAt : null
+        hasDateUpdate ? dateAt : null,
+        hasCategoryUpdate ? updateData.category : null,
+        hasStatusUpdate ? updateData.status : null
       );
 
       const result = await updateNoteFunction(context);

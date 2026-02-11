@@ -9,6 +9,7 @@ class OpenAIQueryAdapter extends QueryAdapter {
     this.baseUrl = OPEN_AI_CONFIGURATION.BASE_URL;
     this.textModel = OPEN_AI_CONFIGURATION.TEXT_MODEL;
     this.embeddingModel = OPEN_AI_CONFIGURATION.EMBEDDING_MODEL;
+    this.embeddingDimensions = OPEN_AI_CONFIGURATION.EMBEDDING_DIMENSIONS;
     this.apiKey = process.env[OPEN_AI_CONFIGURATION.OPENAI_API_KEY_ENV_VAR];
   }
 
@@ -52,6 +53,7 @@ class OpenAIQueryAdapter extends QueryAdapter {
       body: JSON.stringify({
         input,
         model: this.embeddingModel,
+        dimensions: this.embeddingDimensions,
       }),
     });
 
@@ -60,7 +62,7 @@ class OpenAIQueryAdapter extends QueryAdapter {
     if (!response.ok) {
       throw new Error(
         data?.error?.message ||
-          `OpenAI embeddings request failed: ${response.status}`
+        `OpenAI embeddings request failed: ${response.status}`
       );
     }
 

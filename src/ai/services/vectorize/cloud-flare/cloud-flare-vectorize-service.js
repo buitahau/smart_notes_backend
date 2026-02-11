@@ -43,6 +43,14 @@ class CloudFlareVectorizeService {
         indexType: 'string',
         propertyName: 'dateAt',
       },
+      {
+        indexType: 'string',
+        propertyName: 'category',
+      },
+      {
+        indexType: 'string',
+        propertyName: 'status',
+      },
     ];
 
     const metadataUrl = `${getVectorizeIndexUrl(
@@ -85,12 +93,21 @@ class CloudFlareVectorizeService {
     );
   }
 
-  async insertVector(noteId, userId, dateAtTimestamp, values) {
+  async insertVector(
+    noteId,
+    userId,
+    dateAtTimestamp,
+    values,
+    category,
+    status
+  ) {
     const vectorPayload = this._buildVectorPayload(
       noteId,
       userId,
       dateAtTimestamp,
-      values
+      values,
+      category,
+      status
     );
 
     return apiClient.postNdjson(
@@ -100,12 +117,21 @@ class CloudFlareVectorizeService {
     );
   }
 
-  async upsertVector(noteId, userId, dateAtTimestamp, values) {
+  async upsertVector(
+    noteId,
+    userId,
+    dateAtTimestamp,
+    values,
+    category,
+    status
+  ) {
     const vectorPayload = this._buildVectorPayload(
       noteId,
       userId,
       dateAtTimestamp,
-      values
+      values,
+      category,
+      status
     );
 
     return apiClient.postNdjson(
@@ -123,7 +149,14 @@ class CloudFlareVectorizeService {
     );
   }
 
-  _buildVectorPayload(noteId, userId, dateAtTimestamp, values) {
+  _buildVectorPayload(
+    noteId,
+    userId,
+    dateAtTimestamp,
+    values,
+    category,
+    status
+  ) {
     return {
       id: noteId,
       values,
@@ -131,6 +164,8 @@ class CloudFlareVectorizeService {
         noteId,
         userId,
         dateAt: dateAtTimestamp,
+        category: category,
+        status: status,
       },
     };
   }

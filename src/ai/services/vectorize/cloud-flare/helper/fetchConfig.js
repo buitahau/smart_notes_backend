@@ -7,7 +7,7 @@ export const API_METHODS = {
 
 export const CONTENT_TYPES = {
   JSON: 'application/json',
-  NDFLSON: 'application/x-ndjson',
+  NDJSON: 'application/x-ndjson',
 };
 
 const createBaseConfig = (c, customConfig = {}) => {
@@ -72,7 +72,7 @@ export const createPostNdjsonConfig = (c, body, customConfig = {}) => {
   return createBaseConfig(c, {
     method: API_METHODS.POST,
     headers: {
-      'Content-Type': CONTENT_TYPES.NDFLSON,
+      'Content-Type': CONTENT_TYPES.NDJSON,
     },
     body: JSON.stringify(body),
     ...customConfig,
