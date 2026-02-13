@@ -3,6 +3,7 @@ import { apiClient } from '../vectorize/cloud-flare/helper/fetch.js';
 import AdapterFactory from '../../adapters/adapterFactory.js';
 import ProviderEnum from '../../adapters/ProviderEnum.js';
 import { createEmbedding } from '../embedding-service.js';
+import CategoryEnum from '../../../enums/CategoryEnum.js';
 
 const extractDatesFromQuery = async (c, query) => {
   const queryAdapter = AdapterFactory.getQueryAdapter(ProviderEnum.GEMINI);
@@ -15,7 +16,7 @@ export const queryTaskList = async c => {
     return c.json({ error: 'Missing userId' }, 400);
   }
 
-  const filter = { userId };
+  const filter = { userId, category: CategoryEnum.ON_A_DATE };
 
   // Extract dates from query
   const dateFilter = await extractDatesFromQuery(c, query);

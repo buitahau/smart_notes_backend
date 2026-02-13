@@ -1,6 +1,7 @@
 import { getVectorizeIndexUrl } from '../vectorize/cloud-flare/helper/vectorize-helper.js';
 import { apiClient } from '../vectorize/cloud-flare/helper/fetch.js';
 import AdapterFactory from '../../adapters/adapterFactory.js';
+import CategoryEnum from '../../../enums/CategoryEnum.js';
 
 const EMBEDDING_MODEL = '@cf/baai/bge-base-en-v1.5';
 
@@ -75,6 +76,7 @@ export const queryDateLookup = async c => {
       filter: {
         userId,
         dateAt: dateFilter,
+        category: CategoryEnum.ON_A_DATE,
       },
     });
 

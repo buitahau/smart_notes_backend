@@ -1,5 +1,6 @@
 import { getVectorizeIndexUrl } from '../vectorize/cloud-flare/helper/vectorize-helper.js';
 import { apiClient } from '../vectorize/cloud-flare/helper/fetch.js';
+import CategoryEnum from '../../../enums/CategoryEnum.js';
 
 const EMBEDDING_MODEL = '@cf/baai/bge-base-en-v1.5';
 
@@ -25,6 +26,7 @@ export const queryInformationRetrieval = async c => {
             returnValues: true,
             filter: {
                 userId,
+                category: CategoryEnum.INFORMATION,
             },
         });
 
